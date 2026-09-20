@@ -6,8 +6,12 @@ __pycache__/
 .mypy_cache/
 .ruff_cache/
 .coverage
+.coverage.*
 coverage.xml
 htmlcov/
+.hypothesis/
+.tox/
+.nox/
 
 # Virtual environments
 .venv/
@@ -19,6 +23,10 @@ ENV/
 build/
 dist/
 *.egg-info/
+*.tsbuildinfo
+
+# JavaScript dependencies at any workspace level
+node_modules/
 
 # Environment and local secrets
 .env

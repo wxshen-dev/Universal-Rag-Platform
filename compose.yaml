@@ -1,0 +1,151 @@
+name: universal-rag-platform
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-knowledge_base}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 5s
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      APP_NAME: ${APP_NAME:-Universal RAG Platform}
+      APP_ENV: docker
+      APP_HOST: 0.0.0.0
+      APP_PORT: 18080
+      APP_API_PREFIX: /api/v1
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      MAX_UPLOAD_SIZE_MB: ${MAX_UPLOAD_SIZE_MB:-50}
+      APP_API_KEY: ${APP_API_KEY:-local-dev-api-key}
+      INTERNAL_TOKEN: ${INTERNAL_TOKEN:-local-dev-internal-token}
+      PROVIDER_TIMEOUT_SECONDS: ${PROVIDER_TIMEOUT_SECONDS:-30}
+      PROVIDER_RETRY_COUNT: ${PROVIDER_RETRY_COUNT:-1}
+      HEALTH_PROBE_EXTERNAL_SERVICES: ${HEALTH_PROBE_EXTERNAL_SERVICES:-false}
+      ALLOW_PROVIDER_FALLBACKS: ${ALLOW_PROVIDER_FALLBACKS:-true}
+      INGESTION_MODE: ${INGESTION_MODE:-sync}
+      CORS_ALLOW_ORIGINS: ${CORS_ALLOW_ORIGINS:-http://127.0.0.1:8080,http://localhost:8080}
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: ${POSTGRES_DB:-knowledge_base}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      REDIS_DB: ${REDIS_DB:-0}
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-}
+      STORAGE_ROOT: /app/data
+      RAW_DATA_DIR: /app/data/raw
+      PROCESSED_DATA_DIR: /app/data/processed
+      SAMPLE_DATA_DIR: /app/data/samples
+      VECTOR_STORE_PROVIDER: ${VECTOR_STORE_PROVIDER:-local}
+      ZILLIZ_URI: ${ZILLIZ_URI:-}
+      ZILLIZ_TOKEN: ${ZILLIZ_TOKEN:-}
+      ZILLIZ_COLLECTION: ${ZILLIZ_COLLECTION:-oa_rag_chunks}
+      EMBEDDING_API_BASE: ${EMBEDDING_API_BASE:-}
+      EMBEDDING_API_KEY: ${EMBEDDING_API_KEY:-}
+      EMBEDDING_MODEL: ${EMBEDDING_MODEL:-}
+      EMBEDDING_VECTOR_SIZE: ${EMBEDDING_VECTOR_SIZE:-2560}
+      LLM_API_BASE: ${LLM_API_BASE:-}
+      LLM_API_KEY: ${LLM_API_KEY:-}
+      LLM_MODEL: ${LLM_MODEL:-}
+      LLM_MAX_TOKENS: ${LLM_MAX_TOKENS:-1200}
+      LLM_TEMPERATURE: ${LLM_TEMPERATURE:-0.1}
+      RERANK_ENABLED: ${RERANK_ENABLED:-false}
+      RERANK_API_BASE: ${RERANK_API_BASE:-}
+      RERANK_API_KEY: ${RERANK_API_KEY:-}
+      RERANK_MODEL: ${RERANK_MODEL:-}
+      DIFY_BASE_URL: ${DIFY_BASE_URL:-http://host.docker.internal:8000}
+      DIFY_APP_KEY: ${DIFY_APP_KEY:-}
+      DIFY_RETRIEVAL_USER_ID: ${DIFY_RETRIEVAL_USER_ID:-dify-external}
+      PERMISSION_MODE: ${PERMISSION_MODE:-none}
+      PERMISSION_PLUGIN: ${PERMISSION_PLUGIN:-app.permissions.noop.NoOpPermissionChecker}
+      ADMIN_MANUAL_USER_CREATION_ENABLED: ${ADMIN_MANUAL_USER_CREATION_ENABLED:-false}
+      ADMIN_AUTH_ENABLED: ${ADMIN_AUTH_ENABLED:-false}
+      ADMIN_AUTH_USER_HEADERS: ${ADMIN_AUTH_USER_HEADERS:-X-Authenticated-User,X-User-Id}
+      ADMIN_AUTH_ALLOWED_ROLES: ${ADMIN_AUTH_ALLOWED_ROLES:-platform_admin}
+      RETRIEVAL_AUTHENTICATED_IDENTITY_REQUIRED: ${RETRIEVAL_AUTHENTICATED_IDENTITY_REQUIRED:-false}
+      AUTH_SESSION_ENABLED: ${AUTH_SESSION_ENABLED:-false}
+      AUTH_SESSION_SECRET: ${AUTH_SESSION_SECRET:-}
+      AUTH_SESSION_TTL_SECONDS: ${AUTH_SESSION_TTL_SECONDS:-3600}
+      AUTH_SESSION_ISSUER: ${AUTH_SESSION_ISSUER:-knowledge-base-core}
+      TRUSTED_IDENTITY_HEADER_ENABLED: ${TRUSTED_IDENTITY_HEADER_ENABLED:-false}
+      TRUSTED_IDENTITY_USER_HEADERS: ${TRUSTED_IDENTITY_USER_HEADERS:-X-Authenticated-User,X-User-Id}
+      TRUSTED_IDENTITY_EXTERNAL_SOURCE_HEADERS: ${TRUSTED_IDENTITY_EXTERNAL_SOURCE_HEADERS:-X-Identity-Source,X-Auth-Issuer}
+      TRUSTED_IDENTITY_EXTERNAL_ID_HEADERS: ${TRUSTED_IDENTITY_EXTERNAL_ID_HEADERS:-X-Identity-External-Id,X-Auth-Subject}
+      EVALUATION_RETRIEVAL_USER_ID: ${EVALUATION_RETRIEVAL_USER_ID:-evaluation-service}
+      IMAGE_RECOGNITION_PROVIDER: ${IMAGE_RECOGNITION_PROVIDER:-paddle_ocr}
+      PADDLE_OCR_TOKEN: ${PADDLE_OCR_TOKEN:-}
+      MULTIMODAL_API_BASE: ${MULTIMODAL_API_BASE:-}
+      MULTIMODAL_API_KEY: ${MULTIMODAL_API_KEY:-}
+      MULTIMODAL_MODEL: ${MULTIMODAL_MODEL:-}
+      IMAGE_RECOGNITION_TIMEOUT: ${IMAGE_RECOGNITION_TIMEOUT:-30}
+      IMAGE_RECOGNITION_BATCH_SIZE: ${IMAGE_RECOGNITION_BATCH_SIZE:-5}
+    command: ["sh", "-c", "alembic upgrade head && exec uvicorn app.main:app --host 0.0.0.0 --port 18080"]
+    ports:
+      - "${BACKEND_PORT:-18080}:18080"
+    volumes:
+      - app_data:/app/data
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "import json, urllib.request; data=json.load(urllib.request.urlopen('http://127.0.0.1:18080/api/v1/health')); assert data['data']['postgres']=='up' and data['data']['redis']=='up'"
+      interval: 10s
+      timeout: 5s
+      retries: 20
+      start_period: 20s
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+      args:
+        VITE_API_BASE_URL: /api/v1
+    restart: unless-stopped
+    ports:
+      - "${FRONTEND_PORT:-8080}:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://127.0.0.1/"]
+      interval: 10s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  postgres_data:
+  redis_data:
+  app_data:
