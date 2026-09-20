@@ -1,21 +1,21 @@
 """Permissions package.
 
-This package provides permission checking support with plugin-based extension.
+本包提供权限检查功能，支持插件化扩展。
 
-Usage:
-1. Default mode (no permission checks):
-   - Set PERMISSION_MODE=none
-   - The system uses NoOpPermissionChecker and skips permission checks
+使用方式：
+1. 默认模式（无权限检查）：
+   - 配置 PERMISSION_MODE=none
+   - 系统使用 NoOpPermissionChecker，不做权限检查
 
-2. Plugin mode (custom enterprise permissions):
-   - Set PERMISSION_MODE=plugin
-   - Set PERMISSION_PLUGIN=your.module.YourChecker
-   - Implement the PermissionChecker interface
+2. 插件模式（企业自定义权限）：
+   - 配置 PERMISSION_MODE=plugin
+   - 配置 PERMISSION_PLUGIN=your.module.YourChecker
+   - 企业实现 PermissionChecker 接口
 
-Interfaces:
-- PermissionChecker: permission checker interface defined in app.core.permission
-- NoOpPermissionChecker: no-op permission checker implementation
-- load_permission_checker: loads a permission checker instance
+接口：
+- PermissionChecker: 权限检查器接口（定义在 app.core.permission）
+- NoOpPermissionChecker: 无权限检查实现
+- load_permission_checker: 加载权限检查器实例
 """
 
 from app.core.permission import PermissionChecker

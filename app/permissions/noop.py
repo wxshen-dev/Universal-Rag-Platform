@@ -1,10 +1,10 @@
-"""No-op permission checker implementation.
+"""无权限检查实现
 
-This implementation does not perform permission checks and allows all access.
-Suitable for:
-- Development environments
-- Trusted internal environments
-- Enterprise deployments that enforce permissions at the gateway layer
+此实现不做任何权限检查，全部允许访问。
+适用于：
+- 开发环境
+- 内部信任环境
+- 企业在网关层做权限控制
 """
 from __future__ import annotations
 
@@ -12,10 +12,10 @@ from typing import Any
 
 
 class NoOpPermissionChecker:
-    """No-op permission checker that allows all access.
+    """无权限检查，全部允许
     
-    This is the default permission checker. It does not evaluate permissions,
-    so all documents are accessible to all users.
+    这是默认的权限检查器，不进行任何权限判断。
+    所有文档对所有用户可访问。
     """
     
     def can_access_document(
@@ -23,7 +23,7 @@ class NoOpPermissionChecker:
         document: dict[str, Any],
         user_context: dict[str, Any] | None,
     ) -> bool:
-        """Always return True to allow access to every document."""
+        """始终返回 True，允许访问所有文档"""
         return True
     
     def filter_documents(
@@ -31,5 +31,5 @@ class NoOpPermissionChecker:
         documents: list[dict[str, Any]],
         user_context: dict[str, Any] | None,
     ) -> list[dict[str, Any]]:
-        """Return all documents without filtering."""
+        """返回所有文档，不做过滤"""
         return documents
