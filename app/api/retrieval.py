@@ -21,13 +21,13 @@ router = APIRouter(prefix="/retrieval", tags=["retrieval"])
 STRATEGIES = [
     StrategyInfo(
         name="dense",
-        label="稠密检索",
+        label="Dense retrieval",
         description="仅使用向量语义检索（默认）",
         requires=["embedding"],
     ),
     StrategyInfo(
         name="hybrid",
-        label="混合检索",
+        label="Hybrid retrieval",
         description="向量语义检索 + BM25 关键词检索，min‑max 归一化后加权融合",
         requires=["embedding", "sparse_index"],
     ),

@@ -2,6 +2,34 @@
 
 UniversalRagPlatform is a general-purpose RAG knowledge-base platform built with FastAPI, React, PostgreSQL, Redis, and a pluggable vector-store/provider layer.
 
+## Interface preview
+
+The web console includes document management, configurable chunking, retrieval debugging, evaluation workflows, metadata settings, and API endpoint helpers.
+
+### Retrieval debugging
+
+Choose dense or hybrid retrieval, tune ranking parameters, and inspect score diagnostics for every query.
+
+![UniversalRagPlatform retrieval console](docs/images/retrieval-console.png)
+
+### Chunking configuration
+
+Compare chunking strategies, adjust their parameters, and preview how documents will be split before indexing.
+
+![UniversalRagPlatform chunking configuration](docs/images/chunking-console.png)
+
+### Evaluation workspace
+
+Create reusable evaluation datasets, run retrieval experiments, and compare quality and latency metrics.
+
+![UniversalRagPlatform evaluation workspace](docs/images/evaluation-console.png)
+
+### API endpoint generator
+
+Select one or more knowledge bases and generate request examples for the native HTTP API and Dify integration.
+
+![UniversalRagPlatform API endpoint generator](docs/images/api-endpoints-console.png)
+
 ## Quick start with Docker Compose
 
 Prerequisite: Docker Desktop with Linux containers enabled.
