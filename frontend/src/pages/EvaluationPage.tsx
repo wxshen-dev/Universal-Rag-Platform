@@ -79,7 +79,7 @@ export function EvaluationPage() {
       setQueryCount(0)
       await refreshDatasets()
     } catch (e) {
-      alert(e instanceof Error ? e.message : '创建失败')
+      alert(e instanceof Error ? e.message : 'Creation failed')
     } finally {
       setCreating(false)
     }
@@ -94,7 +94,7 @@ export function EvaluationPage() {
   }
 
   async function handleDeleteDataset(uuid: string) {
-    if (!window.confirm('确认删除此评测集？')) return
+    if (!window.confirm('Delete this evaluation dataset?')) return
     try {
       await deleteEvaluationDataset(uuid)
       setSelectedDataset(null)
@@ -117,7 +117,7 @@ export function EvaluationPage() {
       })
       await refreshRuns(runForm.dataset_uuid.trim())
     } catch (e) {
-      alert(e instanceof Error ? e.message : '启动评测失败')
+      alert(e instanceof Error ? e.message : 'Failed to start evaluation')
     } finally {
       setRunning(false)
     }
@@ -132,7 +132,7 @@ export function EvaluationPage() {
   }
 
   async function handleDeleteRun(uuid: string) {
-    if (!window.confirm('确认删除此评测运行？')) return
+    if (!window.confirm('Delete this evaluation run?')) return
     try {
       await deleteEvaluationRun(uuid)
       if (selectedRun?.run_uuid === uuid) setSelectedRun(null)
@@ -154,7 +154,7 @@ export function EvaluationPage() {
           expected_terms: Array.isArray(obj.expected_terms) ? obj.expected_terms.map(String) : [],
           notes: obj.notes ? String(obj.notes) : undefined,
         }
-      } catch { throw new Error(`第 ${i + 1} 行 JSON 解析失败`) }
+      } catch { throw new Error(`Could not parse JSON on line ${i + 1}`) }
     })
   }
 
@@ -168,12 +168,12 @@ export function EvaluationPage() {
     <>
       <section className="panel hero-panel compact-hero evaluation-hero">
         <div className="hero-copy">
-          <p className="eyebrow">评测</p>
-          <h2>评测工作台</h2>
-          <p className="muted">管理评测数据集、运行评测、查看指标对比。评测使用独立隔离表，不污染生产数据。</p>
+          <p className="eyebrow">Evaluation</p>
+          <h2>Evaluation Workspace</h2>
+          <p className="muted">Manage datasets, run evaluations, and compare metrics. Evaluation data is isolated from production data.</p>
         </div>
         <div className="hero-actions hero-actions-inline">
-          <div className="tab-switcher" role="tablist" aria-label="评测工作台标签">
+          <div className="tab-switcher" role="tablist" aria-label="Evaluation workspace tabs">
             <button
               type="button"
               role="tab"
@@ -181,7 +181,7 @@ export function EvaluationPage() {
               className={`tab-switch-button ${tab === 'datasets' ? 'active' : ''}`}
               onClick={() => setTab('datasets')}
             >
-              评测集
+              Datasets
             </button>
             <button
               type="button"
@@ -190,7 +190,7 @@ export function EvaluationPage() {
               className={`tab-switch-button ${tab === 'runs' ? 'active' : ''}`}
               onClick={() => { setTab('runs'); void refreshRuns() }}
             >
-              评测运行
+              Evaluation runs
             </button>
           </div>
         </div>
@@ -199,80 +199,80 @@ export function EvaluationPage() {
       {tab === 'datasets' ? (
         <section className="grid two-up">
           <article className="panel">
-            <SectionHeader eyebrow="评测" title="创建评测集" />
+            <SectionHeader eyebrow="Evaluation" title="Create Dataset" />
             <form className="form-grid" onSubmit={handleCreateDataset}>
-              <FormField label="名称"><input type="text" value={dsForm.name} onChange={(e) => setDsForm((c) => ({ ...c, name: e.target.value }))} placeholder="例如：客服知识库评测" /></FormField>
-              <FormField label="描述"><input type="text" value={dsForm.description} onChange={(e) => setDsForm((c) => ({ ...c, description: e.target.value }))} placeholder="例如：评测客服相关查询的检索效果" /></FormField>
-              <FormField label="查询列表 JSONL" spanTwo helpText='每行一个 JSON，必填 query 字段，可选 expected_doc_titles 和 expected_terms'>
-                <textarea className="text-area" rows={8} value={jsonlText} onChange={(e) => handleJsonlChange(e.target.value)} placeholder={`示例格式：
-{"query":"客服工单系统","expected_doc_titles":["测试图片2"],"expected_terms":["工单","客服"]}
-{"query":"出差审批流程","expected_doc_titles":["出差文档"],"expected_terms":["出差","审批"]}
-{"query":"请假类型有哪些","expected_doc_titles":["技术文档"],"expected_terms":["请假","年假","病假"]}`} />
+              <FormField label="Name"><input type="text" value={dsForm.name} onChange={(e) => setDsForm((c) => ({ ...c, name: e.target.value }))} placeholder="Example: Customer support knowledge evaluation" /></FormField>
+              <FormField label="Description"><input type="text" value={dsForm.description} onChange={(e) => setDsForm((c) => ({ ...c, description: e.target.value }))} placeholder="Example: Evaluate retrieval quality for support queries" /></FormField>
+              <FormField label="Query List (JSONL)" spanTwo helpText='One JSON object per line. The query field is required; expected_doc_titles and expected_terms are optional.'>
+                <textarea className="text-area" rows={8} value={jsonlText} onChange={(e) => handleJsonlChange(e.target.value)} placeholder={`Example:
+{"query":"customer support ticket system","expected_doc_titles":["Support Guide"],"expected_terms":["ticket","support"]}
+{"query":"travel approval process","expected_doc_titles":["Travel Policy"],"expected_terms":["travel","approval"]}
+{"query":"available leave types","expected_doc_titles":["Employee Handbook"],"expected_terms":["leave","vacation","sick"]}`} />
               </FormField>
               <div className="span-two form-submit-row">
                 <span className="muted" style={{ alignSelf: 'center' }}>
-                  {queryCount > 0 ? `已识别 ${queryCount} 条查询` : queryCount === 0 ? '尚未输入' : 'JSON 格式有误'}
+                  {queryCount > 0 ? `${queryCount} queries recognized` : queryCount === 0 ? 'No input yet' : 'Invalid JSON format'}
                 </span>
-                <button className="primary-button" type="submit" disabled={creating || queryCount <= 0}>创建评测集</button>
+                <button className="primary-button" type="submit" disabled={creating || queryCount <= 0}>Create dataset</button>
               </div>
             </form>
           </article>
           <article className="panel">
-            <SectionHeader eyebrow="评测" title="评测集列表" />
+            <SectionHeader eyebrow="Evaluation" title="Datasets" />
             {datasets.length > 0 ? (
               <div className="mini-list">
                 {datasets.map((ds) => (
                   <div key={ds.dataset_uuid} className="mini-list-item align-left">
                     <strong>{ds.name}</strong>
-                    <small>{ds.description || '无描述'} · {formatDateTime(ds.created_at)}</small>
+                    <small>{ds.description || 'No description'} · {formatDateTime(ds.created_at)}</small>
                     <div className="inline-actions">
-                      <button className="secondary-button" onClick={() => handleViewDataset(ds.dataset_uuid)}>查看</button>
-                      <button className="danger-button" onClick={() => handleDeleteDataset(ds.dataset_uuid)}>删除</button>
+                      <button className="secondary-button" onClick={() => handleViewDataset(ds.dataset_uuid)}>View</button>
+                      <button className="danger-button" onClick={() => handleDeleteDataset(ds.dataset_uuid)}>Delete</button>
                     </div>
                   </div>
                 ))}
               </div>
-            ) : <p className="muted">暂无评测集。</p>}
+            ) : <p className="muted">No evaluation datasets yet.</p>}
           </article>
         </section>
       ) : (
         <section className="grid two-up">
           <article className="panel">
-            <SectionHeader eyebrow="评测" title="发起评测" />
+            <SectionHeader eyebrow="Evaluation" title="Start Evaluation" />
             <form className="form-grid" onSubmit={handleCreateRun}>
-              <FormField label="评测集">
+              <FormField label="Dataset">
                 <select value={runForm.dataset_uuid} onChange={(e) => setRunForm((c) => ({ ...c, dataset_uuid: e.target.value }))}>
-                  <option value="">请选择评测集</option>
+                  <option value="">Select a dataset</option>
                   {datasets.map((ds) => (
-                    <option key={ds.dataset_uuid} value={ds.dataset_uuid}>{ds.name} ({ds.query_count}条查询)</option>
+                    <option key={ds.dataset_uuid} value={ds.dataset_uuid}>{ds.name} ({ds.query_count} queries)</option>
                   ))}
                 </select>
               </FormField>
-              <FormField label="切分策略">
+              <FormField label="Chunking strategy">
                 <select value={runForm.chunking_strategy} onChange={(e) => setRunForm((c) => ({ ...c, chunking_strategy: e.target.value }))}>
                   {chunkStrats.map((s) => <option key={s.name} value={s.name}>{getChunkingStrategyLabel(s.name)}</option>)}
                 </select>
               </FormField>
-              <FormField label="检索策略">
+              <FormField label="Retrieval strategy">
                 <select value={runForm.retrieval_strategy} onChange={(e) => setRunForm((c) => ({ ...c, retrieval_strategy: e.target.value }))}>
                   {retrStrats.map((s) => <option key={s.name} value={s.name}>{s.label}</option>)}
                 </select>
               </FormField>
               {runForm.retrieval_strategy === 'hybrid' && (
-                <FormField label="融合权重 alpha">
+                <FormField label="Fusion weight (alpha)">
                   <input type="range" min="0" max="1" step="0.1" value={runForm.fusion_alpha} onChange={(e) => setRunForm((c) => ({ ...c, fusion_alpha: Number(e.target.value) }))} />
                   <span style={{ fontSize: 12, color: '#76624f' }}>{runForm.fusion_alpha}</span>
                 </FormField>
               )}
               <div className="span-two form-submit-row">
-                <button className="primary-button" type="submit" disabled={running}>{running ? '运行中...' : '运行评测'}</button>
+                <button className="primary-button" type="submit" disabled={running}>{running ? 'Running...' : 'Run evaluation'}</button>
               </div>
             </form>
           </article>
           <article className="panel">
-            <SectionHeader eyebrow="评测" title="运行历史" />
-            <FormField label="按评测集过滤">
-              <input type="text" value={runDatasetUuid} onChange={(e) => { setRunDatasetUuid(e.target.value); refreshRuns(e.target.value || undefined) }} placeholder="输入 dataset_uuid..." />
+            <SectionHeader eyebrow="Evaluation" title="Run History" />
+            <FormField label="Filter by dataset">
+              <input type="text" value={runDatasetUuid} onChange={(e) => { setRunDatasetUuid(e.target.value); refreshRuns(e.target.value || undefined) }} placeholder="Enter dataset_uuid..." />
             </FormField>
             {runs.length > 0 ? (
               <div className="mini-list">
@@ -282,29 +282,29 @@ export function EvaluationPage() {
                       <span className={`status-chip status-chip-${run.status === 'completed' ? 'success' : run.status === 'running' ? 'loading' : run.status === 'failed' ? 'danger' : 'neutral'}`}>{getStatusLabel(run.status)}</span>
                       &nbsp;{getChunkingStrategyLabel(run.chunking_strategy)} + {getRetrievalStrategyLabel(run.retrieval_strategy)}
                     </strong>
-                    <small>{run.dataset_name || run.run_uuid.slice(0, 8)} · {run.summary ? `命中率@1: ${(run.summary.hit_at_1_rate * 100).toFixed(0)}%` : ''}</small>
+                    <small>{run.dataset_name || run.run_uuid.slice(0, 8)} · {run.summary ? `Hit@1: ${(run.summary.hit_at_1_rate * 100).toFixed(0)}%` : ''}</small>
                     <div className="inline-actions">
-                      <button className="secondary-button" onClick={() => handleViewRun(run.run_uuid)}>详情</button>
-                      <button className="danger-button" onClick={() => handleDeleteRun(run.run_uuid)}>删除</button>
+                      <button className="secondary-button" onClick={() => handleViewRun(run.run_uuid)}>Details</button>
+                      <button className="danger-button" onClick={() => handleDeleteRun(run.run_uuid)}>Delete</button>
                     </div>
                   </div>
                 ))}
               </div>
-            ) : <p className="muted">暂无评测运行。</p>}
+            ) : <p className="muted">No evaluation runs yet.</p>}
           </article>
         </section>
       )}
 
       {selectedDataset ? (
         <section className="panel">
-          <SectionHeader eyebrow="详情" title={`评测集：${selectedDataset.name}`} />
+          <SectionHeader eyebrow="Details" title={`Dataset: ${selectedDataset.name}`} />
           <p className="muted">{selectedDataset.description}</p>
           <div className="mini-list">
             {selectedDataset.queries.map((q) => (
               <div key={q.query_uuid} className="mini-list-item align-left">
                 <strong>{q.query_text}</strong>
-                <small>文档：{q.expected_doc_titles.join(', ') || '无'}</small>
-                <small>关键词：{q.expected_terms.join(', ') || '无'}</small>
+                <small>Documents: {q.expected_doc_titles.join(', ') || 'None'}</small>
+                <small>Keywords: {q.expected_terms.join(', ') || 'None'}</small>
               </div>
             ))}
           </div>
@@ -313,15 +313,15 @@ export function EvaluationPage() {
 
       {selectedRun?.results ? (
         <section className="panel">
-          <SectionHeader eyebrow="结果" title={`评测运行：${selectedRun.run_uuid.slice(0, 8)}`} stateLabel={selectedRun.status} stateClass={`badge-${selectedRun.status === 'completed' ? 'ready' : 'loading'}`} />
+          <SectionHeader eyebrow="Results" title={`Evaluation run: ${selectedRun.run_uuid.slice(0, 8)}`} stateLabel={selectedRun.status} stateClass={`badge-${selectedRun.status === 'completed' ? 'ready' : 'loading'}`} />
           {selectedRun.summary ? (
             <div className="debug-overview-grid">
-              <div className="summary-stat compact-stat"><strong>{(selectedRun.summary.hit_at_1_rate * 100).toFixed(0)}%</strong><span>命中率@1</span></div>
-              <div className="summary-stat compact-stat"><strong>{(selectedRun.summary.hit_at_3_rate * 100).toFixed(0)}%</strong><span>命中率@3</span></div>
-              <div className="summary-stat compact-stat"><strong>{(selectedRun.summary.hit_at_5_rate * 100).toFixed(0)}%</strong><span>命中率@5</span></div>
-              <div className="summary-stat compact-stat"><strong>{selectedRun.summary.mean_mrr.toFixed(3)}</strong><span>平均倒数排名</span></div>
-              <div className="summary-stat compact-stat"><strong>{(selectedRun.summary.mean_term_hit_rate * 100).toFixed(0)}%</strong><span>关键词命中率</span></div>
-              <div className="summary-stat compact-stat"><strong>{selectedRun.summary.mean_latency_ms}ms</strong><span>平均延迟</span></div>
+              <div className="summary-stat compact-stat"><strong>{(selectedRun.summary.hit_at_1_rate * 100).toFixed(0)}%</strong><span>Hit@1</span></div>
+              <div className="summary-stat compact-stat"><strong>{(selectedRun.summary.hit_at_3_rate * 100).toFixed(0)}%</strong><span>Hit@3</span></div>
+              <div className="summary-stat compact-stat"><strong>{(selectedRun.summary.hit_at_5_rate * 100).toFixed(0)}%</strong><span>Hit@5</span></div>
+              <div className="summary-stat compact-stat"><strong>{selectedRun.summary.mean_mrr.toFixed(3)}</strong><span>Mean reciprocal rank</span></div>
+              <div className="summary-stat compact-stat"><strong>{(selectedRun.summary.mean_term_hit_rate * 100).toFixed(0)}%</strong><span>Keyword hit rate</span></div>
+              <div className="summary-stat compact-stat"><strong>{selectedRun.summary.mean_latency_ms}ms</strong><span>Mean latency</span></div>
             </div>
           ) : null}
           <div className="mini-list">
@@ -329,8 +329,8 @@ export function EvaluationPage() {
               <div key={r.query_uuid} className="mini-list-item align-left">
                 <strong>{r.query_text}</strong>
                 <small>
-                  命中@1:{r.hit_at_1 ? '✅' : '❌'} @3:{r.hit_at_3 ? '✅' : '❌'} @5:{r.hit_at_5 ? '✅' : '❌'} ·
-                  平均倒数排名:{r.mrr.toFixed(2)} · 关键词命中:{(r.expected_term_hit_rate * 100).toFixed(0)}% · {r.avg_latency_ms}ms
+                  Hit@1:{r.hit_at_1 ? '✅' : '❌'} @3:{r.hit_at_3 ? '✅' : '❌'} @5:{r.hit_at_5 ? '✅' : '❌'} ·
+                  MRR:{r.mrr.toFixed(2)} · Keyword hit rate:{(r.expected_term_hit_rate * 100).toFixed(0)}% · {r.avg_latency_ms}ms
                 </small>
               </div>
             ))}

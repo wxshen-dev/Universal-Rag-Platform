@@ -4,8 +4,8 @@ import type { FieldKey, FieldOption, FieldOptionsConfig, SystemConfigItem } from
 export const FIELD_OPTIONS_CONFIG_KEY = 'metadata.field_options'
 
 export const FIELD_LABELS: Record<FieldKey, string> = {
-  source_module: '知识库',
-  source_type: '文档类型',
+  source_module: 'Knowledge base',
+  source_type: 'Document type',
 }
 
 export const FIELD_ORDER: FieldKey[] = ['source_module', 'source_type']
@@ -16,15 +16,15 @@ export const DEFAULT_FIELD_OPTIONS_CONFIG: FieldOptionsConfig = {
       { value: 'oa', label: 'OA', enabled: true, sort_order: 10 },
       { value: 'hr', label: 'HR', enabled: true, sort_order: 20 },
       { value: 'crm', label: 'CRM', enabled: true, sort_order: 30 },
-      { value: 'general', label: '通用', enabled: true, sort_order: 40 },
+      { value: 'general', label: 'General', enabled: true, sort_order: 40 },
     ],
     source_type: [
-      { value: 'rule_doc', label: '制度规范', enabled: true, sort_order: 10 },
-      { value: 'faq', label: 'FAQ问答', enabled: true, sort_order: 20 },
-      { value: 'manual', label: '操作手册', enabled: true, sort_order: 30 },
-      { value: 'policy', label: '政策文件', enabled: true, sort_order: 40 },
-      { value: 'notice', label: '通知公告', enabled: true, sort_order: 50 },
-      { value: 'other', label: '其他文档', enabled: true, sort_order: 60 },
+      { value: 'rule_doc', label: 'Rules and standards', enabled: true, sort_order: 10 },
+      { value: 'faq', label: 'FAQ', enabled: true, sort_order: 20 },
+      { value: 'manual', label: 'User manual', enabled: true, sort_order: 30 },
+      { value: 'policy', label: 'Policy', enabled: true, sort_order: 40 },
+      { value: 'notice', label: 'Notice', enabled: true, sort_order: 50 },
+      { value: 'other', label: 'Other', enabled: true, sort_order: 60 },
     ],
   },
 }
@@ -58,7 +58,7 @@ function normalizeOption(raw: unknown, fallbackOrder: number): FieldOption | nul
 }
 
 function sortOptions(options: FieldOption[]) {
-  return [...options].sort((a, b) => a.sort_order - b.sort_order || a.label.localeCompare(b.label, 'zh-CN'))
+  return [...options].sort((a, b) => a.sort_order - b.sort_order || a.label.localeCompare(b.label, 'en-US'))
 }
 
 export function normalizeFieldOptionsConfig(raw: unknown): FieldOptionsConfig {
@@ -93,7 +93,7 @@ export function getFieldOptions(config: FieldOptionsConfig, fieldKey: FieldKey, 
     ...enabledOptions,
     {
       value,
-      label: `${knownOption?.label ?? value}（历史值）`,
+      label: `${knownOption?.label ?? value} (legacy value)`,
       enabled: false,
       sort_order: Number.MAX_SAFE_INTEGER,
     },
@@ -123,20 +123,20 @@ export async function loadFieldOptionsSystemConfig(): Promise<{
     const created = await createSystemConfig({
       config_key: FIELD_OPTIONS_CONFIG_KEY,
       config_value: DEFAULT_FIELD_OPTIONS_CONFIG as unknown as Record<string, unknown>,
-      description: '文档元数据字段选项配置',
+      description: 'Document metadata field option configuration',
     })
     return { item: created, config: normalizeFieldOptionsConfig(created.config_value) }
   } catch {
-    // 并发创建可能冲突，等待后重试
+    // A concurrent create may conflict; wait briefly and retry.
     await new Promise((resolve) => setTimeout(resolve, 300))
     const retry = await fetchSystemConfigs({ keyword: FIELD_OPTIONS_CONFIG_KEY })
     const retried = retry.items.find((item) => item.config_key === FIELD_OPTIONS_CONFIG_KEY)
     if (retried) return { item: retried, config: normalizeFieldOptionsConfig(retried.config_value) }
-    // 再试一次创建
+    // Try creating once more.
     const created = await createSystemConfig({
       config_key: FIELD_OPTIONS_CONFIG_KEY,
       config_value: DEFAULT_FIELD_OPTIONS_CONFIG as unknown as Record<string, unknown>,
-      description: '文档元数据字段选项配置',
+      description: 'Document metadata field option configuration',
     })
     return { item: created, config: normalizeFieldOptionsConfig(created.config_value) }
   }
@@ -147,12 +147,12 @@ export async function saveFieldOptionsSystemConfig(configId: number | null, conf
   if (configId) {
     return updateSystemConfig(configId, {
       config_value: normalized as unknown as Record<string, unknown>,
-      description: '文档元数据字段选项配置',
+      description: 'Document metadata field option configuration',
     })
   }
   return createSystemConfig({
     config_key: FIELD_OPTIONS_CONFIG_KEY,
     config_value: normalized as unknown as Record<string, unknown>,
-    description: '文档元数据字段选项配置',
+    description: 'Document metadata field option configuration',
   })
 }

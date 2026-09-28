@@ -48,43 +48,43 @@ export function RetrievalPage() {
     <>
       <section className="panel hero-panel compact-hero">
         <div className="hero-copy">
-          <p className="eyebrow">检索</p>
-          <h2>检索测试</h2>
-          <p className="muted">选择检索策略、调整参数、即时搜索并查看详细结果和分数拆解。</p>
+          <p className="eyebrow">Retrieval</p>
+          <h2>Retrieval Testing</h2>
+          <p className="muted">Choose a retrieval strategy, tune parameters, run a search, and inspect detailed scores.</p>
         </div>
         <div className="hero-actions">
           {stratInfo ? (
             <div className="summary-stat">
               <strong>{stratInfo.strategies.length}</strong>
-              <span>可用策略</span>
+              <span>Available strategies</span>
             </div>
           ) : null}
           {stratInfo?.rerank?.enabled ? (
             <div className="summary-stat">
               <strong>Rerank</strong>
-              <span>{stratInfo.rerank.model ?? '已启用'}</span>
+              <span>{stratInfo.rerank.model ?? 'Enabled'}</span>
             </div>
           ) : null}
         </div>
       </section>
 
       <section className="panel">
-        <SectionHeader eyebrow="检索" title="调试检索" stateLabel={debugState === 'loading' ? '搜索中' : debugState === 'ready' ? '完成' : debugState === 'error' ? '失败' : '就绪'} stateClass={`badge-${debugState === 'ready' ? 'ready' : debugState === 'error' ? 'error' : 'loading'}`} />
+        <SectionHeader eyebrow="Retrieval" title="Debug Search" stateLabel={debugState === 'loading' ? 'Searching' : debugState === 'ready' ? 'Complete' : debugState === 'error' ? 'Failed' : 'Ready'} stateClass={`badge-${debugState === 'ready' ? 'ready' : debugState === 'error' ? 'error' : 'loading'}`} />
         <form className="form-grid debug-form" onSubmit={handleDebugSearch}>
-          <FormField label="检索策略">
+          <FormField label="Retrieval strategy">
             <select value={debugForm.strategy} onChange={(e) => setDebugForm((c) => ({ ...c, strategy: e.target.value }))}>
               {stratInfo?.strategies.map((s) => (
                 <option key={s.name} value={s.name}>{s.label}</option>
               )) ?? (
                 <>
-                  <option value="dense">稠密检索</option>
-                  <option value="hybrid">混合检索</option>
+                  <option value="dense">Dense retrieval</option>
+                  <option value="hybrid">Hybrid retrieval</option>
                 </>
               )}
             </select>
           </FormField>
           {debugForm.strategy === 'hybrid' && (
-            <FormField label="融合权重 alpha" hint="向量权重（0~1），值越大越偏语义">
+            <FormField label="Fusion weight (alpha)" hint="Vector weight from 0 to 1; higher values favor semantic similarity.">
               <input
                 type="range"
                 min="0"
@@ -99,62 +99,62 @@ export function RetrievalPage() {
           <div className="span-two strategy-guide-card">
             <div className="strategy-guide-head">
               <div>
-                <p className="eyebrow">分数说明</p>
-                <h4>{debugForm.strategy === 'hybrid' ? '混合检索打分' : '稠密检索打分'}</h4>
+                <p className="eyebrow">Score guide</p>
+                <h4>{debugForm.strategy === 'hybrid' ? 'Hybrid retrieval scoring' : 'Dense retrieval scoring'}</h4>
               </div>
             </div>
             {debugForm.strategy === 'hybrid' ? (
               <dl className="definition-list strategy-guide-list">
                 <div className="definition-row">
-                  <dt>向量分数</dt>
-                  <dd>向量召回原始分，只代表语义相似度，不是最终排序分。</dd>
+                  <dt>Vector score</dt>
+                  <dd>The raw dense-retrieval score. It represents semantic similarity, not the final ranking score.</dd>
                 </div>
                 <div className="definition-row">
-                  <dt>稀疏分数</dt>
-                  <dd>BM25 关键词检索原始分。若显示 null，表示这条结果没有进入稀疏召回结果。</dd>
+                  <dt>Sparse score</dt>
+                  <dd>The raw BM25 keyword score. A null value means the item was not returned by sparse retrieval.</dd>
                 </div>
                 <div className="definition-row">
-                  <dt>最终分数</dt>
-                  <dd>不是平均数。系统会先分别对稠密分和稀疏分做归一化，再按 alpha 融合，公式约等于 alpha × dense_norm + (1 - alpha) × sparse_norm。</dd>
+                  <dt>Final score</dt>
+                  <dd>Not a simple average. Dense and sparse scores are normalized separately, then fused as alpha × dense_norm + (1 - alpha) × sparse_norm.</dd>
                 </div>
               </dl>
             ) : (
               <dl className="definition-list strategy-guide-list">
                 <div className="definition-row">
-                  <dt>向量分数</dt>
-                  <dd>纯向量检索分数，代表语义相似度，即最终排序分。</dd>
+                  <dt>Vector score</dt>
+                  <dd>The dense-retrieval semantic similarity score and final ranking score.</dd>
                 </div>
               </dl>
             )}
           </div>
-          <FormField label="查询词" hint="输入你要验证的检索问题或关键词。">
+          <FormField label="Query" hint="Enter the question or keywords you want to test.">
             <input type="text" value={debugForm.query} onChange={(e) => setDebugForm((c) => ({ ...c, query: e.target.value }))} />
           </FormField>
-          <FormField label="知识库" hint="可留空。">
+          <FormField label="Knowledge base" hint="Optional.">
             <select value={debugForm.sourceModule} onChange={(e) => setDebugForm((c) => ({ ...c, sourceModule: e.target.value }))}>
-              <option value="">全部模块</option>
+              <option value="">All modules</option>
               {getFieldOptions(fieldOptions, 'source_module', debugForm.sourceModule).map((option) => (
                 <option key={option.value} value={option.value}>{option.label}</option>
               ))}
             </select>
           </FormField>
           <div className="span-two form-submit-row">
-            <button className="primary-button" type="submit">执行调试检索</button>
+            <button className="primary-button" type="submit">Run debug search</button>
           </div>
         </form>
 
         {debugData ? (
           <div className="debug-result-area">
             <div className="debug-overview-grid">
-              <div className="summary-stat compact-stat"><strong>{debugData.hits.length}</strong><span>命中条数</span></div>
-              <div className="summary-stat compact-stat"><strong>{debugData.latency_ms}ms</strong><span>接口耗时</span></div>
-              <div className="summary-stat compact-stat"><strong>{debugData.query}</strong><span>原始查询</span></div>
-              <div className="summary-stat compact-stat"><strong>{debugData.rewritten_query}</strong><span>改写查询</span></div>
+              <div className="summary-stat compact-stat"><strong>{debugData.hits.length}</strong><span>Hits</span></div>
+              <div className="summary-stat compact-stat"><strong>{debugData.latency_ms}ms</strong><span>API latency</span></div>
+              <div className="summary-stat compact-stat"><strong>{debugData.query}</strong><span>Original query</span></div>
+              <div className="summary-stat compact-stat"><strong>{debugData.rewritten_query}</strong><span>Rewritten query</span></div>
               {debugData.retrieval_strategy && (
-                <div className="summary-stat compact-stat"><strong>{debugData.retrieval_strategy}</strong><span>检索策略</span></div>
+                <div className="summary-stat compact-stat"><strong>{debugData.retrieval_strategy}</strong><span>Retrieval strategy</span></div>
               )}
               {debugData.rerank_enabled && (
-                <div className="summary-stat compact-stat"><strong>{debugData.rerank_latency_ms}ms</strong><span>Rerank 耗时</span></div>
+                <div className="summary-stat compact-stat"><strong>{debugData.rerank_latency_ms}ms</strong><span>Rerank latency</span></div>
               )}
             </div>
             {debugData.hits.length > 0 ? (
@@ -164,16 +164,16 @@ export function RetrievalPage() {
                     <div className="debug-hit-head">
                       <div>
                         <strong>{hit.title}</strong>
-                        <p className="muted">文档：{hit.doc_uuid} · Chunk：{hit.chunk_uuid}</p>
+                        <p className="muted">Document: {hit.doc_uuid} · Chunk: {hit.chunk_uuid}</p>
                       </div>
                       <span className="status-chip status-chip-success">score {hit.score.toFixed(3)}</span>
                     </div>
                     <div className="debug-meta-row">
-                      <span>模块：{hit.source_module}</span>
-                      <span>版本：{hit.version}</span>
-                      <span>向量原始分：{hit.vector_score?.toFixed(3) ?? '—'}</span>
-                      {'sparse_score' in hit && <span>稀疏原始分：{(hit as { sparse_score?: number }).sparse_score?.toFixed(3) ?? '—'}</span>}
-                      {'rerank_score' in hit && (hit as { rerank_score?: number }).rerank_score != null && <span>重排：{(hit as { rerank_score: number }).rerank_score.toFixed(3)}</span>}
+                      <span>Module: {hit.source_module}</span>
+                      <span>Version: {hit.version}</span>
+                      <span>Raw vector score: {hit.vector_score?.toFixed(3) ?? '—'}</span>
+                      {'sparse_score' in hit && <span>Raw sparse score: {(hit as { sparse_score?: number }).sparse_score?.toFixed(3) ?? '—'}</span>}
+                      {'rerank_score' in hit && (hit as { rerank_score?: number }).rerank_score != null && <span>Rerank: {(hit as { rerank_score: number }).rerank_score.toFixed(3)}</span>}
                     </div>
                     <p className="debug-snippet">{hit.snippet}</p>
                     {hit.image_url && (
@@ -185,21 +185,21 @@ export function RetrievalPage() {
                 ))}
               </div>
             ) : (
-               <div className="empty-debug-state"><strong>本次检索返回 0 条命中</strong><p>可以尝试放宽知识库限制，检查当前用户是否有对应权限，或者改用更明确的查询词。</p></div>
+               <div className="empty-debug-state"><strong>This search returned no hits</strong><p>Try broadening the knowledge-base filter, checking user permissions, or using a more specific query.</p></div>
             )}
             <details className="debug-raw-box">
-              <summary>查看排序调试明细</summary>
+              <summary>View ranking details</summary>
               <pre>{JSON.stringify(debugData.ranking_debug, null, 2)}</pre>
             </details>
             {(debugData.dense_hits?.length || debugData.sparse_hits?.length) ? (
               <details className="debug-raw-box">
-                <summary>查看召回来源明细</summary>
+                <summary>View retrieval-source details</summary>
                 <pre>{JSON.stringify({ dense_hits: debugData.dense_hits, sparse_hits: debugData.sparse_hits }, null, 2)}</pre>
               </details>
             ) : null}
           </div>
         ) : (
-          <div className="empty-debug-state"><strong>执行后结果会显示在这里</strong><p>包括命中条数、耗时、命中卡片以及排序调试明细。</p></div>
+          <div className="empty-debug-state"><strong>Results will appear here</strong><p>You will see hit counts, latency, result cards, and ranking diagnostics.</p></div>
         )}
       </section>
     </>

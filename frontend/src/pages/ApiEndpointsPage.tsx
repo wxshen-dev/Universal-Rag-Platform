@@ -29,7 +29,7 @@ export function ApiEndpointsPage() {
           setLoadState('ready')
         } catch (err) {
           setLoadState('error')
-          showToast(err instanceof Error ? err.message : '加载知识库列表失败', 'danger')
+          showToast(err instanceof Error ? err.message : 'Failed to load knowledge bases', 'danger')
         }
       })()
     }, 0)
@@ -67,12 +67,12 @@ export function ApiEndpointsPage() {
 
   const baseUrl = getApiBaseUrl()
 
-  // 通用 HTTP 查询接口地址
+  // General-purpose HTTP query endpoint.
   const httpUrl = useMemo(() => {
     return `${baseUrl}/knowledge/query`
   }, [baseUrl])
 
-  // Dify 外部知识库接口地址（Dify会自动拼接 /retrieval，这里只填基础路径）
+  // Dify appends /retrieval automatically, so this is the base endpoint.
   const difyRetrievalUrl = useMemo(() => {
     return `${baseUrl}/dify`
   }, [baseUrl])
@@ -89,7 +89,7 @@ export function ApiEndpointsPage() {
   const httpExampleBody = useMemo(() => {
     return JSON.stringify(
       {
-        query: '你的查询内容',
+        query: 'Your query',
         top_k: 8,
         response_mode: 'search',
         filters: selectedArray.length > 0 ? { source_module: selectedArray } : undefined,
@@ -102,8 +102,8 @@ export function ApiEndpointsPage() {
   const difyRetrievalExampleBody = useMemo(() => {
     return JSON.stringify(
       {
-        knowledge_id: selectedArray.length > 0 ? selectedArray.join(',') : '<知识库编码>',
-        query: '你的查询内容',
+        knowledge_id: selectedArray.length > 0 ? selectedArray.join(',') : '<knowledge-base-code>',
+        query: 'Your query',
         retrieval_setting: { top_k: 5, score_threshold: 0.2 },
       },
       null,
@@ -115,9 +115,9 @@ export function ApiEndpointsPage() {
     async (text: string, label: string) => {
       try {
         await navigator.clipboard.writeText(text)
-        showToast(`${label} 已复制`, 'success')
+        showToast(`${label} copied`, 'success')
       } catch {
-        showToast('复制失败，请手动选择复制', 'danger')
+        showToast('Copy failed. Please select and copy the text manually.', 'danger')
       }
     },
     [],
@@ -127,9 +127,9 @@ export function ApiEndpointsPage() {
     <>
       <section className="panel hero-panel compact-hero">
         <div className="hero-copy">
-          <p className="eyebrow">API 接口</p>
-          <h2>接口地址生成</h2>
-          <p className="muted">选择知识库，生成可直接用于 Dify 和 HTTP 调用的接口地址。</p>
+          <p className="eyebrow">API Endpoints</p>
+          <h2>Endpoint Generator</h2>
+          <p className="muted">Select knowledge bases and generate endpoints ready for Dify or direct HTTP requests.</p>
         </div>
       </section>
 
@@ -139,23 +139,23 @@ export function ApiEndpointsPage() {
         </div>
       ) : null}
 
-      {/* 知识库选择 */}
+      {/* Knowledge-base selection */}
       <section className="panel">
         <SectionHeader
-          eyebrow="第一步"
-          title="选择知识库"
-          stateLabel={loadState === 'loading' ? '加载中' : loadState === 'error' ? '失败' : '就绪'}
+          eyebrow="Step one"
+          title="Select Knowledge Bases"
+          stateLabel={loadState === 'loading' ? 'Loading' : loadState === 'error' ? 'Failed' : 'Ready'}
           stateClass={`badge-${loadState === 'error' ? 'error' : loadState === 'ready' ? 'ready' : 'loading'}`}
         />
         <div className="module-selector">
           <div className="module-selector-actions">
             <button className="secondary-button compact-button" type="button" onClick={selectAll}>
-              全选
+              Select all
             </button>
             <button className="secondary-button compact-button" type="button" onClick={clearAll}>
-              清空
+              Clear
             </button>
-            <span className="muted">已选 {selectedArray.length} 个</span>
+            <span className="muted">{selectedArray.length} selected</span>
           </div>
           <div className="module-chips">
             {modules.map((mod) => {
@@ -172,15 +172,15 @@ export function ApiEndpointsPage() {
               )
             })}
             {modules.length === 0 && loadState === 'ready' && (
-              <p className="muted">暂无可用知识库，请先在配置管理中添加。</p>
+              <p className="muted">No knowledge bases are available. Add one in Settings first.</p>
             )}
           </div>
         </div>
       </section>
 
-      {/* 通用 HTTP 查询接口 */}
+      {/* General HTTP query endpoint */}
       <section className="panel">
-        <SectionHeader eyebrow="通用接口" title="HTTP 知识库查询" />
+        <SectionHeader eyebrow="General API" title="HTTP Knowledge Query" />
         <div className="api-endpoint-block">
           <div className="api-endpoint-header">
             <code className="api-method">POST</code>
@@ -188,46 +188,46 @@ export function ApiEndpointsPage() {
             <button
               className="secondary-button compact-button"
               type="button"
-              onClick={() => void copyText(httpUrl, '接口地址')}
+              onClick={() => void copyText(httpUrl, 'Endpoint')}
             >
-              复制地址
+              Copy endpoint
             </button>
           </div>
-          <p className="muted">支持 search（纯检索）和 qa（检索+问答）两种模式，返回完整引用信息。</p>
+          <p className="muted">Supports search (retrieval only) and qa (retrieval plus answer) modes with complete citation details.</p>
           <div className="api-example">
             <div className="api-example-head">
-              <span>请求示例</span>
+              <span>Request example</span>
               <button
                 className="secondary-button compact-button"
                 type="button"
-                onClick={() => void copyText(httpExampleBody, '请求示例')}
+                onClick={() => void copyText(httpExampleBody, 'Request example')}
               >
-                复制
+                Copy
               </button>
             </div>
             <pre className="code-block">{httpExampleBody}</pre>
           </div>
           <div className="api-example">
             <div className="api-example-head">
-              <span>filters 说明</span>
+              <span>Filter reference</span>
               <button
                 className="secondary-button compact-button"
                 type="button"
                 onClick={() => void copyText(filtersJson, 'filters')}
               >
-                复制
+                Copy
               </button>
             </div>
-            <pre className="code-block">{`// filters 字段用于按知识库筛选
-// source_module: 知识库编码数组
+            <pre className="code-block">{`// Use filters to limit the search to selected knowledge bases.
+// source_module: array of knowledge-base codes
 ${filtersJson}`}</pre>
           </div>
         </div>
       </section>
 
-      {/* Dify 外部知识库接口 */}
+      {/* Dify external knowledge endpoint */}
       <section className="panel">
-        <SectionHeader eyebrow="Dify 对接" title="Dify External Knowledge API" />
+        <SectionHeader eyebrow="Dify Integration" title="Dify External Knowledge API" />
         <div className="api-endpoint-block">
           <div className="api-endpoint-header">
             <code className="api-method">POST</code>
@@ -235,32 +235,32 @@ ${filtersJson}`}</pre>
             <button
               className="secondary-button compact-button"
               type="button"
-              onClick={() => void copyText(difyRetrievalUrl, 'Dify 外部知识库地址')}
+              onClick={() => void copyText(difyRetrievalUrl, 'Dify external knowledge endpoint')}
             >
-              复制地址
+              Copy endpoint
             </button>
           </div>
           <p className="muted">
-            官方 External Knowledge API 格式。在 Dify 中配置时，API 端点填写 <code>{difyRetrievalUrl}</code>（不含 /retrieval），Dify 会自动拼接。
+            Uses the official External Knowledge API format. In Dify, set the API endpoint to <code>{difyRetrievalUrl}</code> without /retrieval; Dify appends it automatically.
           </p>
           <div className="api-example">
             <div className="api-example-head">
-              <span>Dify 知识库配置说明</span>
+              <span>Dify knowledge-base configuration</span>
             </div>
-            <pre className="code-block">{`# Dify 外部知识库配置
+            <pre className="code-block">{`# Dify external knowledge configuration
 
-# ⚠️ Dify容器内访问宿主机，必须用 host.docker.internal
-API 端点：http://host.docker.internal:18080/api/v1/dify
-API 密钥：在 .env 中配置的 DIFY_APP_KEY
+# Use host.docker.internal to reach the host from a Dify container.
+API endpoint: http://host.docker.internal:18080/api/v1/dify
+API key: DIFY_APP_KEY from .env
 
-# 多知识库组合方式（推荐）
-# 知识库ID 填写多个 source_module，用逗号分隔
-知识库ID：oa,kf
+# Multiple knowledge bases (recommended)
+# Enter comma-separated source_module values as the knowledge base ID.
+Knowledge base ID: oa,kf
 
-# 单知识库方式
-知识库ID：oa
+# Single knowledge base
+Knowledge base ID: oa
 
-# 元数据过滤方式（在请求中传递）
+# Metadata filters (passed in the request)
 metadata_condition:
   logical_operator: or
   conditions:
@@ -273,13 +273,13 @@ metadata_condition:
           </div>
           <div className="api-example">
             <div className="api-example-head">
-              <span>请求示例</span>
+              <span>Request example</span>
               <button
                 className="secondary-button compact-button"
                 type="button"
-                onClick={() => void copyText(difyRetrievalExampleBody, 'Dify 请求示例')}
+                onClick={() => void copyText(difyRetrievalExampleBody, 'Dify request example')}
               >
-                复制
+                Copy
               </button>
             </div>
             <pre className="code-block">{difyRetrievalExampleBody}</pre>
@@ -293,62 +293,62 @@ metadata_condition:
             <button
               className="secondary-button compact-button"
               type="button"
-              onClick={() => void copyText(difyKnowledgeUrl, 'Dify knowledge 地址')}
+              onClick={() => void copyText(difyKnowledgeUrl, 'Dify knowledge endpoint')}
             >
-              复制地址
+              Copy endpoint
             </button>
           </div>
           <p className="muted">
-            Dify 工作流 / HTTP 工具节点格式，同样需要 Bearer Token 认证。
+            Format for Dify workflows and HTTP tool nodes. Bearer token authentication is also required.
           </p>
         </div>
       </section>
 
-      {/* 接口说明文档 */}
+      {/* API reference */}
       <section className="panel">
-        <SectionHeader eyebrow="参考" title="接口参数说明" />
+        <SectionHeader eyebrow="Reference" title="API Parameters" />
         <div className="api-doc-section">
-          <h4>通用查询接口 <code>/api/v1/knowledge/query</code></h4>
+          <h4>General query endpoint <code>/api/v1/knowledge/query</code></h4>
           <table className="api-doc-table">
             <thead>
               <tr>
-                <th>参数</th>
-                <th>类型</th>
-                <th>必填</th>
-                <th>默认值</th>
-                <th>说明</th>
+                <th>Parameter</th>
+                <th>Type</th>
+                <th>Required</th>
+                <th>Default</th>
+                <th>Description</th>
               </tr>
             </thead>
             <tbody>
-              <tr><td>query</td><td>string</td><td>是</td><td>—</td><td>查询文本</td></tr>
-              <tr><td>top_k</td><td>int</td><td>否</td><td>8</td><td>返回条数，1-50</td></tr>
-              <tr><td>min_score</td><td>float</td><td>否</td><td>0.2</td><td>最低分数阈值，0-1</td></tr>
-              <tr><td>response_mode</td><td>string</td><td>否</td><td>search</td><td>search（纯检索）/ qa（检索+问答）</td></tr>
-              <tr><td>filters.source_module</td><td>string[]</td><td>否</td><td>null</td><td>按知识库筛选</td></tr>
-              <tr><td>filters.source_type</td><td>string[]</td><td>否</td><td>null</td><td>按文档类型筛选</td></tr>
-              <tr><td>filters.file_ext</td><td>string[]</td><td>否</td><td>null</td><td>按文件扩展名筛选</td></tr>
-              <tr><td>generation_options.temperature</td><td>float</td><td>否</td><td>0.1</td><td>LLM 温度（qa 模式）</td></tr>
-              <tr><td>generation_options.max_tokens</td><td>int</td><td>否</td><td>1200</td><td>LLM 最大输出 token（qa 模式）</td></tr>
+              <tr><td>query</td><td>string</td><td>Yes</td><td>—</td><td>Query text</td></tr>
+              <tr><td>top_k</td><td>int</td><td>No</td><td>8</td><td>Number of results, 1–50</td></tr>
+              <tr><td>min_score</td><td>float</td><td>No</td><td>0.2</td><td>Minimum score threshold, 0–1</td></tr>
+              <tr><td>response_mode</td><td>string</td><td>No</td><td>search</td><td>search (retrieval only) / qa (retrieval plus answer)</td></tr>
+              <tr><td>filters.source_module</td><td>string[]</td><td>No</td><td>null</td><td>Filter by knowledge base</td></tr>
+              <tr><td>filters.source_type</td><td>string[]</td><td>No</td><td>null</td><td>Filter by document type</td></tr>
+              <tr><td>filters.file_ext</td><td>string[]</td><td>No</td><td>null</td><td>Filter by file extension</td></tr>
+              <tr><td>generation_options.temperature</td><td>float</td><td>No</td><td>0.1</td><td>LLM temperature in qa mode</td></tr>
+              <tr><td>generation_options.max_tokens</td><td>int</td><td>No</td><td>1200</td><td>Maximum LLM output tokens in qa mode</td></tr>
             </tbody>
           </table>
 
-          <h4 style={{ marginTop: '1.5rem' }}>响应字段</h4>
+          <h4 style={{ marginTop: '1.5rem' }}>Response Fields</h4>
           <table className="api-doc-table">
             <thead>
               <tr>
-                <th>字段</th>
-                <th>类型</th>
-                <th>说明</th>
+                <th>Field</th>
+                <th>Type</th>
+                <th>Description</th>
               </tr>
             </thead>
             <tbody>
-              <tr><td>query</td><td>string</td><td>原始查询</td></tr>
+              <tr><td>query</td><td>string</td><td>Original query</td></tr>
               <tr><td>mode</td><td>string</td><td>search / qa</td></tr>
-              <tr><td>answer</td><td>string</td><td>回答文本（search 模式为拼接摘要）</td></tr>
+              <tr><td>answer</td><td>string</td><td>Answer text; search mode returns a combined summary</td></tr>
               <tr><td>answer_status</td><td>string</td><td>grounded / insufficient_evidence</td></tr>
-              <tr><td>references[]</td><td>array</td><td>引用列表，包含 doc_uuid, chunk_uuid, title, snippet, score 等</td></tr>
-              <tr><td>filters_applied</td><td>object</td><td>实际生效的过滤条件</td></tr>
-              <tr><td>latency_ms</td><td>object</td><td>耗时统计（retrieval, generation, total）</td></tr>
+              <tr><td>references[]</td><td>array</td><td>Citations with doc_uuid, chunk_uuid, title, snippet, score, and more</td></tr>
+              <tr><td>filters_applied</td><td>object</td><td>Filters actually applied</td></tr>
+              <tr><td>latency_ms</td><td>object</td><td>Latency for retrieval, generation, and total</td></tr>
             </tbody>
           </table>
         </div>

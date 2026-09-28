@@ -21,8 +21,8 @@ type ToastState = {
 type LoadState = 'idle' | 'loading' | 'ready' | 'error'
 
 const FIELD_DESCRIPTIONS: Record<FieldKey, string> = {
-  source_module: '用于资源归属和权限匹配。',
-  source_type: '用于文档分类展示和检索过滤。',
+  source_module: 'Used for resource ownership and permission matching.',
+  source_type: 'Used for document classification and retrieval filters.',
 }
 
 function emptyOption(sortOrder: number): FieldOption {
@@ -80,7 +80,7 @@ export function SettingsPage() {
       setLoadState('ready')
     } catch (error) {
       setLoadState('error')
-      showToast(error instanceof Error ? error.message : '加载字段配置失败', 'danger')
+      showToast(error instanceof Error ? error.message : 'Failed to load field configuration', 'danger')
     }
   }
 
@@ -102,7 +102,7 @@ export function SettingsPage() {
           setLoadState('ready')
         } catch (error) {
           setLoadState('error')
-          showToast(error instanceof Error ? error.message : '加载字段配置失败', 'danger')
+          showToast(error instanceof Error ? error.message : 'Failed to load field configuration', 'danger')
         }
       })()
     }, 0)
@@ -145,7 +145,7 @@ export function SettingsPage() {
   function removeOption(fieldKey: FieldKey, index: number) {
     const option = fieldOptions.fields[fieldKey][index]
     if (usedValues[fieldKey].has(option.value)) {
-      showToast(`${option.label || option.value}已有文档使用，不能删除`, 'danger')
+      showToast(`${option.label || option.value} is used by existing documents and cannot be deleted`, 'danger')
       return
     }
     setFieldOptions((current) => ({
@@ -162,12 +162,12 @@ export function SettingsPage() {
       for (const option of config.fields[fieldKey]) {
         const value = option.value.trim()
         const label = option.label.trim()
-        if (!value || !label) return `${FIELD_LABELS[fieldKey]}存在空编码或空名称`
-        if (seen.has(value)) return `${FIELD_LABELS[fieldKey]}存在重复编码：${value}`
+        if (!value || !label) return `${FIELD_LABELS[fieldKey]} contains an empty code or label`
+        if (seen.has(value)) return `${FIELD_LABELS[fieldKey]} contains a duplicate code: ${value}`
         seen.add(value)
       }
       if (!config.fields[fieldKey].some((option) => option.enabled)) {
-        return `${FIELD_LABELS[fieldKey]}至少需要一个启用选项`
+        return `${FIELD_LABELS[fieldKey]} requires at least one enabled option`
       }
     }
     return null
@@ -185,9 +185,9 @@ export function SettingsPage() {
       const savedConfig = await saveFieldOptionsSystemConfig(configId, normalized)
       setConfigId(savedConfig.id)
       setFieldOptions(normalized)
-      showToast('字段选项已保存', 'success')
+      showToast('Field options saved', 'success')
     } catch (error) {
-      showToast(error instanceof Error ? error.message : '保存失败', 'danger')
+      showToast(error instanceof Error ? error.message : 'Save failed', 'danger')
     } finally {
       setSaving(false)
     }
@@ -197,18 +197,18 @@ export function SettingsPage() {
     <>
       <section className="panel hero-panel compact-hero">
         <div className="hero-copy">
-          <p className="eyebrow">配置管理</p>
-          <h2>字段选项配置</h2>
-          <p className="muted">统一管理知识库和文档类型的下拉选项，保存后其他页面会使用启用中的值。</p>
+          <p className="eyebrow">Settings</p>
+          <h2>Field Option Configuration</h2>
+          <p className="muted">Manage knowledge-base and document-type options in one place. Other pages use enabled values after you save.</p>
         </div>
         <div className="hero-actions settings-hero-actions">
           <div className="summary-stat settings-summary-stat">
             <strong>{enabledCount}</strong>
-            <span>启用选项</span>
+            <span>Enabled options</span>
           </div>
-          <button className="secondary-button settings-hero-button" type="button" onClick={() => void refreshSettings()}>刷新</button>
+          <button className="secondary-button settings-hero-button" type="button" onClick={() => void refreshSettings()}>Refresh</button>
           <button className="primary-button settings-hero-button" type="button" disabled={saving} onClick={() => void handleSave()}>
-            {saving ? '保存中...' : '保存配置'}
+            {saving ? 'Saving...' : 'Save configuration'}
           </button>
         </div>
       </section>
@@ -217,9 +217,9 @@ export function SettingsPage() {
 
       <section className="panel">
         <SectionHeader
-          eyebrow="字段字典"
-          title="元数据选项"
-          stateLabel={loadState === 'loading' ? '加载中' : loadState === 'error' ? '失败' : '就绪'}
+          eyebrow="Field dictionary"
+          title="Metadata Options"
+          stateLabel={loadState === 'loading' ? 'Loading' : loadState === 'error' ? 'Failed' : 'Ready'}
           stateClass={`badge-${loadState === 'error' ? 'error' : loadState === 'ready' ? 'ready' : 'loading'}`}
         />
         <div className="field-option-grid">
@@ -231,18 +231,18 @@ export function SettingsPage() {
                   <p>{FIELD_DESCRIPTIONS[fieldKey]}</p>
                 </div>
                 <button className="secondary-button compact-button" type="button" onClick={() => addOption(fieldKey)}>
-                  新增
+                  Add
                 </button>
               </div>
               <div className="field-option-table-shell">
                 <table className="field-option-table">
                   <thead>
                     <tr>
-                      <th>编码</th>
-                      <th>显示名称</th>
-                      <th>排序</th>
-                      <th>启用</th>
-                      <th>操作</th>
+                      <th>Code</th>
+                      <th>Display name</th>
+                      <th>Order</th>
+                      <th>Enabled</th>
+                      <th>Actions</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -279,7 +279,7 @@ export function SettingsPage() {
                                 checked={option.enabled}
                                 onChange={(event) => updateOption(fieldKey, index, { enabled: event.target.checked })}
                               />
-                              <span>{option.enabled ? '启用' : '停用'}</span>
+                              <span>{option.enabled ? 'Enabled' : 'Disabled'}</span>
                             </label>
                           </td>
                           <td>
@@ -289,7 +289,7 @@ export function SettingsPage() {
                               disabled={used}
                               onClick={() => removeOption(fieldKey, index)}
                             >
-                              {used ? '已使用' : '删除'}
+                              {used ? 'In use' : 'Delete'}
                             </button>
                           </td>
                         </tr>

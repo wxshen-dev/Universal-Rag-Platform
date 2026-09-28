@@ -3,10 +3,10 @@ export function parseStringArrayJson(raw: string, fieldName: string) {
   try {
     parsed = JSON.parse(raw)
   } catch {
-    throw new Error(`${fieldName} 必须是合法 JSON`)
+    throw new Error(`${fieldName} must be valid JSON`)
   }
   if (!Array.isArray(parsed)) {
-    throw new Error(`${fieldName} 必须是 JSON 数组`)
+    throw new Error(`${fieldName} must be a JSON array`)
   }
   return parsed.map((item) => String(item))
 }
@@ -16,10 +16,10 @@ export function parseRecordJson(raw: string, fieldName: string) {
   try {
     parsed = JSON.parse(raw)
   } catch {
-    throw new Error(`${fieldName} 必须是合法 JSON`)
+    throw new Error(`${fieldName} must be valid JSON`)
   }
   if (!parsed || typeof parsed !== 'object' || Array.isArray(parsed)) {
-    throw new Error(`${fieldName} 必须是 JSON 对象`)
+    throw new Error(`${fieldName} must be a JSON object`)
   }
   return parsed as Record<string, unknown>
 }
@@ -39,7 +39,7 @@ export function formatDateTime(value: string | null | undefined) {
   if (Number.isNaN(date.getTime())) {
     return value
   }
-  return date.toLocaleString('zh-CN')
+  return date.toLocaleString('en-US')
 }
 
 export function stringifyValue(value: unknown) {
@@ -55,13 +55,13 @@ export function stringifyValue(value: unknown) {
 export function getLoadStateLabel(state: 'idle' | 'loading' | 'ready' | 'error') {
   switch (state) {
     case 'loading':
-      return '加载中'
+      return 'Loading'
     case 'ready':
-      return '正常'
+      return 'Ready'
     case 'error':
-      return '异常'
+      return 'Error'
     default:
-      return '待处理'
+      return 'Pending'
   }
 }
 

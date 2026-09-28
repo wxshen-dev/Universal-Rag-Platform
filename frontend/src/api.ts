@@ -68,7 +68,7 @@ async function requestJson<T>(path: string, init?: RequestInit): Promise<T> {
     response = await fetch(`${API_BASE}${path}`, withAuthHeader(init))
   } catch (error) {
     throw new Error(
-      `请求后端失败，请确认前后端服务已启动且允许跨域访问。${error instanceof Error ? error.message : ''}`,
+      `Unable to reach the backend. Confirm that both services are running and CORS is configured. ${error instanceof Error ? error.message : ''}`,
       { cause: error },
     )
   }
@@ -80,16 +80,16 @@ async function requestJson<T>(path: string, init?: RequestInit): Promise<T> {
     try {
       payload = JSON.parse(rawText) as ApiEnvelope<T>
     } catch {
-      throw new Error(`接口返回了无法解析的响应，HTTP ${response.status}`)
+      throw new Error(`The API returned an unreadable response (HTTP ${response.status}).`)
     }
   }
 
   if (!payload) {
-    throw new Error(`接口返回为空，HTTP ${response.status}`)
+    throw new Error(`The API returned an empty response (HTTP ${response.status}).`)
   }
 
   if (!response.ok || payload.code !== 0) {
-    throw new Error(payload.message || `接口请求失败，HTTP ${response.status}`)
+    throw new Error(payload.message || `API request failed (HTTP ${response.status}).`)
   }
 
   return payload.data

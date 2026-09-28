@@ -15,7 +15,7 @@ export function HelpTip({ text }: { text: string }) {
       <button
         className="help-button"
         type="button"
-        aria-label="查看填写说明"
+        aria-label="View field guidance"
         aria-expanded={open}
         onClick={() => setOpen((current) => !current)}
       >
@@ -67,7 +67,7 @@ export function SectionHeader(props: {
         {stateLabel ? <span className={`badge ${stateClass ?? ''}`}>{stateLabel}</span> : null}
         {onToggle ? (
           <button className="collapse-button" type="button" onClick={onToggle}>
-            {collapsed ? '展开' : '收起'}
+            {collapsed ? 'Expand' : 'Collapse'}
           </button>
         ) : null}
       </div>

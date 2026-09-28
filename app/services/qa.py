@@ -105,13 +105,11 @@ class QaService:
     def _has_sufficient_evidence(citations) -> bool:
         if not citations:
             return False
-        top = citations[0]
-        if top.score < 0.35:
-            return False
-        # text_score 为 None 时跳过检查（纯向量检索模式）
-        if top.text_score is not None and top.text_score < 0.2:
-            return False
-        return True
+        return any(
+            citation.score >= 0.35
+            and (citation.text_score is None or citation.text_score >= 0.2)
+            for citation in citations
+        )
 
     def _record_llm_log(self, llm_result) -> None:
         status = "fallback" if llm_result.provider_name == "local-fallback" else "success"

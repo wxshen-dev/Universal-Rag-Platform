@@ -19,6 +19,7 @@ from app.models.retrieval_log import RetrievalLog
 from app.permissions.loader import load_permission_checker
 from app.repositories.retrieval_logs import RetrievalLogRepository
 from app.retrieval.hybrid import HybridRetriever, DenseHit as _DenseHit, SparseHit as _SparseHit
+from app.retrieval.scoring import score_text_match
 from app.retrieval.sparse_index import SparseIndexProvider
 from app.schemas.retrieval import (
     Citation,
@@ -197,7 +198,7 @@ class RetrievalService:
                 updated_at=document.updated_at,
                 score=vector_score,
                 vector_score=vector_score,
-                text_score=None,
+                text_score=score_text_match(request.query, chunk.chunk_text),
                 rerank_score=rerank_scores.get(str(chunk.chunk_uuid), (None, None))[0],
                 pre_rerank_score=rerank_scores.get(str(chunk.chunk_uuid), (None, None))[1],
                 image_url=f"/api/v1/documents/{document.doc_uuid}/download" if document.file_ext in IMAGE_EXTENSIONS else None,
@@ -342,7 +343,7 @@ class RetrievalService:
                 updated_at=document.updated_at,
                 score=final_score,
                 vector_score=dense_score,
-                text_score=None,
+                text_score=score_text_match(request.query, chunk.chunk_text),
                 sparse_score=sparse_score,
                 rerank_score=rerank_scores.get(str(chunk.chunk_uuid), (None, None))[0],
                 pre_rerank_score=rerank_scores.get(str(chunk.chunk_uuid), (None, None))[1],
