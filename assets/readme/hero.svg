@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="390" viewBox="0 0 1200 390" role="img" aria-labelledby="title desc">
+  <title id="title">Universal RAG Platform</title>
+  <desc id="desc">A knowledge base console connecting documents, chunking, retrieval debugging, and evaluation.</desc>
+  <rect width="1200" height="390" rx="24" fill="#f8f4ee"/>
+  <path d="M0 322H1200" stroke="#e4d8c9" stroke-width="2"/>
+
+  <g id="identity" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif">
+    <rect x="56" y="48" width="11" height="11" rx="2" fill="#8f4313"/>
+    <text x="81" y="59" fill="#8f4313" font-size="18" font-weight="700" letter-spacing="2">KNOWLEDGE BASE CONSOLE</text>
+    <text x="56" y="142" fill="#261d15" font-size="66" font-weight="750" letter-spacing="-2">Universal RAG</text>
+    <text x="56" y="211" fill="#261d15" font-size="66" font-weight="750" letter-spacing="-2">Platform</text>
+    <text x="58" y="257" fill="#5d4a39" font-size="25">Build, inspect, and evaluate your knowledge base.</text>
+    <text x="57" y="359" fill="#76624f" font-size="18">FASTAPI  /  REACT  /  POSTGRESQL  /  REDIS</text>
+  </g>
+
+  <g id="workflow" font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif">
+    <text x="824" y="59" fill="#8f4313" font-size="18" font-weight="700" letter-spacing="2">WORKFLOW</text>
+    <path d="M795 93V276" stroke="#d8c7b3" stroke-width="3"/>
+    <circle cx="795" cy="109" r="9" fill="#8f4313"/>
+    <circle cx="795" cy="165" r="9" fill="#8f4313"/>
+    <circle cx="795" cy="221" r="9" fill="#8f4313"/>
+    <circle cx="795" cy="277" r="9" fill="#8f4313"/>
+    <text x="824" y="116" fill="#261d15" font-size="26" font-weight="650">Documents</text>
+    <text x="824" y="172" fill="#261d15" font-size="26" font-weight="650">Chunking</text>
+    <text x="824" y="228" fill="#261d15" font-size="26" font-weight="650">Retrieval</text>
+    <text x="824" y="284" fill="#261d15" font-size="26" font-weight="650">Evaluation</text>
+    <text x="824" y="359" fill="#76624f" font-size="18">LOCAL-FIRST SETUP  /  OPTIONAL PROVIDERS</text>
+  </g>
+</svg>

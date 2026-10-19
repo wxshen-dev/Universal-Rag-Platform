@@ -1,79 +1,74 @@
-# UniversalRagPlatform
+<p align="center">
+  <img src="./assets/readme/hero.svg" width="100%" alt="Universal RAG Platform: a knowledge base console for documents, chunking, retrieval debugging, and evaluation">
+</p>
 
-UniversalRagPlatform is a general-purpose RAG knowledge-base platform built with FastAPI, React, PostgreSQL, Redis, and a pluggable vector-store/provider layer.
+**Universal RAG Platform** is a FastAPI and React knowledge-base workspace for bringing documents into a RAG pipeline, inspecting how they are split and retrieved, and evaluating retrieval results. It runs with PostgreSQL, Redis, and a local vector store by default; external model and vector providers can be configured when needed.
 
-## Interface preview
+[Quick start](#quick-start) · [Explore the console](#explore-the-console) · [API access](#api-access) · [Local development](#local-development)
 
-The web console includes document management, configurable chunking, retrieval debugging, evaluation workflows, metadata settings, and API endpoint helpers.
+## See what retrieval is doing
 
-### Retrieval debugging
+The retrieval console lets you choose dense or hybrid search, tune parameters, and inspect per-query ranking diagnostics. This is an actual screen from the project.
 
-Choose dense or hybrid retrieval, tune ranking parameters, and inspect score diagnostics for every query.
+![Retrieval console with strategy selection, score guidance, and a debug search form](assets/readme/retrieval-console-crop.png)
 
-![UniversalRagPlatform retrieval console](docs/images/retrieval-console.png)
+## Explore the console
 
-### Chunking configuration
+The workspace follows the path from source material to measured retrieval:
 
-Compare chunking strategies, adjust their parameters, and preview how documents will be split before indexing.
+1. **Manage documents.** Bring source material into a knowledge base and track ingestion.
+2. **Preview chunking.** Select a strategy, adjust parameters, and inspect the resulting splits before indexing.
+3. **Debug retrieval.** Compare dense and hybrid strategies and inspect scores and ranking details.
+4. **Evaluate.** Build reusable query datasets and compare retrieval quality and latency across runs.
 
-![UniversalRagPlatform chunking configuration](docs/images/chunking-console.png)
+### Preview chunking
 
-### Evaluation workspace
+![Chunking configuration with strategy guidance, parameters, and a document preview area](docs/images/chunking-console.png)
 
-Create reusable evaluation datasets, run retrieval experiments, and compare quality and latency metrics.
+<details>
+<summary>View the evaluation workspace</summary>
 
-![UniversalRagPlatform evaluation workspace](docs/images/evaluation-console.png)
+![Evaluation workspace with dataset creation and query examples](docs/images/evaluation-console.png)
 
-### API endpoint generator
+</details>
 
-Select one or more knowledge bases and generate request examples for the native HTTP API and Dify integration.
+## Quick start
 
-![UniversalRagPlatform API endpoint generator](docs/images/api-endpoints-console.png)
+You need Docker Desktop with Linux containers enabled. From the repository root, run:
 
-## Quick start with Docker Compose
-
-Prerequisite: Docker Desktop with Linux containers enabled.
-
-```powershell
+```sh
 docker compose up --build -d
 ```
 
-The first startup builds both application images, starts PostgreSQL and Redis, runs all Alembic migrations, and then starts the backend and frontend.
+The first start builds the backend and frontend, starts PostgreSQL and Redis, applies Alembic migrations, and opens the console.
 
-- Web UI: http://localhost:8080
-- Backend API: http://localhost:18080/api/v1
-- API documentation: http://localhost:18080/docs
-- Health endpoint: http://localhost:18080/api/v1/health
+| Open | Address |
+| --- | --- |
+| Web console | http://localhost:8080 |
+| API documentation | http://localhost:18080/docs |
+| Health check | http://localhost:18080/api/v1/health |
 
-Useful commands:
+Start in the web console: add a knowledge base and document, preview chunking, then run a search in **Retrieval**. The Compose defaults use the local vector store and provider fallbacks, so external embedding, LLM, reranking, image-recognition, and Milvus/Zilliz services are optional for a local start.
 
-```powershell
-# Follow application logs
-docker compose logs -f backend frontend
+To change ports, credentials, or providers, copy `.env.example` to `.env` and edit it before starting. Keep `.env` out of Git. The checked-in Compose credentials and API key are development defaults; change them before exposing a deployment beyond your local machine.
 
-# Show service status
-docker compose ps
-
-# Stop the stack without deleting data
-docker compose down
-
-# Stop the stack and delete local database/storage volumes
-docker compose down -v
+```sh
+docker compose logs -f backend frontend  # follow application logs
+docker compose ps                        # inspect services
+docker compose down                      # stop, retain data volumes
 ```
 
-The default Compose setup uses the built-in local vector store and provider fallbacks, so external Milvus/Zilliz, embedding, LLM, reranking, and image-recognition services are optional.
+`docker compose down -v` also deletes the local database and storage volumes.
 
-To customize ports, credentials, or external providers, copy `.env.example` to `.env` and edit the values before starting the stack:
+## API access
 
-```powershell
-Copy-Item .env.example .env
-```
+The console can generate request examples for the native HTTP API and Dify integration, including knowledge-base selection. The native query endpoint is `POST /api/v1/knowledge/query`; its `response_mode` accepts `search` for retrieval or `qa` for retrieval plus an answer. See the live schema at [API documentation](http://localhost:18080/docs) after startup.
 
-Never commit `.env`; it is intentionally ignored by Git.
+![API endpoint generator showing selected knowledge bases and a copyable HTTP request example](docs/images/api-endpoints-console.png)
 
 ## Local development
 
-The supported Python version is recorded in `.python-version` (Python 3.11.13).
+The project pins Python **3.11.13** in `.python-version`. For a Windows PowerShell environment, with PostgreSQL and Redis running:
 
 ```powershell
 py -3.11 -m venv .venv
@@ -81,13 +76,12 @@ py -3.11 -m venv .venv
 python -m pip install --upgrade pip
 pip install -r requirements.txt
 Copy-Item .env.example .env
+# Edit .env to match your local PostgreSQL and Redis settings.
 alembic upgrade head
 uvicorn app.main:app --reload --host 127.0.0.1 --port 18080
 ```
 
-Local development requires PostgreSQL and Redis matching the values in `.env`.
-
-Run the frontend in a second terminal:
+In a second terminal:
 
 ```powershell
 Set-Location frontend
@@ -95,28 +89,15 @@ npm ci
 npm run dev
 ```
 
-The Vite development server is available at http://localhost:5180 and proxies `/api/v1` to the backend.
+Vite serves the frontend at http://localhost:5180 and proxies `/api/v1` to the backend. Application settings live in `app/core/config.py`; `.env.example` lists the supported local and Compose settings. A local backend needs `DATABASE_URL` or the PostgreSQL connection values.
 
-## Configuration
+## Tests and project map
 
-Application settings are defined in `app/core/config.py`. `.env.example` documents the supported local and Compose settings. At minimum, a non-Compose local run needs either `DATABASE_URL` or all four PostgreSQL connection values.
-
-External provider credentials are optional in the default local configuration. When configured, keep all real tokens in `.env` only.
-
-## Tests
-
-Install pytest in the active development environment, then run:
-
-```powershell
-pip install pytest
-pytest
-```
-
-## Project layout
+Install pytest in the active Python environment and run `pytest`.
 
 ```text
-app/          FastAPI application
-frontend/     React/Vite frontend
+app/          FastAPI application and RAG services
+frontend/     React/Vite console
 migrations/   Alembic database migrations
 scripts/      Smoke and acceptance scripts
 tests/        Backend test suite
